@@ -71,8 +71,9 @@ namespace Quickstarts.ReferenceClient
             this.Help_ContentsMI = new System.Windows.Forms.ToolStripMenuItem();
             this.StatusBar = new System.Windows.Forms.StatusStrip();
             this.ConnectServerCTRL = new Opc.Ua.Client.Controls.ConnectServerCtrl();
-            this.BrowseCTRL = new BrowseNodeCtrl();
-            this.clientHeaderBranding1 = new HeaderBranding();
+            this.BrowseCTRL = new Opc.Ua.Client.Controls.BrowseNodeCtrl();
+            this.clientHeaderBranding1 = new Opc.Ua.Client.Controls.HeaderBranding();
+            this.subscribeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuBar.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -93,7 +94,7 @@ namespace Quickstarts.ReferenceClient
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
             // 
             // exitToolStripMenuItem
@@ -108,7 +109,8 @@ namespace Quickstarts.ReferenceClient
             this.ServerMI.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.Server_DiscoverMI,
             this.Server_ConnectMI,
-            this.Server_DisconnectMI});
+            this.Server_DisconnectMI,
+            this.subscribeToolStripMenuItem});
             this.ServerMI.Name = "ServerMI";
             this.ServerMI.Size = new System.Drawing.Size(51, 20);
             this.ServerMI.Text = "Server";
@@ -116,21 +118,21 @@ namespace Quickstarts.ReferenceClient
             // Server_DiscoverMI
             // 
             this.Server_DiscoverMI.Name = "Server_DiscoverMI";
-            this.Server_DiscoverMI.Size = new System.Drawing.Size(127, 22);
+            this.Server_DiscoverMI.Size = new System.Drawing.Size(180, 22);
             this.Server_DiscoverMI.Text = "Discover...";
             this.Server_DiscoverMI.Click += new System.EventHandler(this.Server_DiscoverMI_Click);
             // 
             // Server_ConnectMI
             // 
             this.Server_ConnectMI.Name = "Server_ConnectMI";
-            this.Server_ConnectMI.Size = new System.Drawing.Size(127, 22);
+            this.Server_ConnectMI.Size = new System.Drawing.Size(180, 22);
             this.Server_ConnectMI.Text = "Connect";
             this.Server_ConnectMI.Click += new System.EventHandler(this.Server_ConnectMI_Click);
             // 
             // Server_DisconnectMI
             // 
             this.Server_DisconnectMI.Name = "Server_DisconnectMI";
-            this.Server_DisconnectMI.Size = new System.Drawing.Size(127, 22);
+            this.Server_DisconnectMI.Size = new System.Drawing.Size(180, 22);
             this.Server_DisconnectMI.Text = "Disconnect";
             this.Server_DisconnectMI.Click += new System.EventHandler(this.Server_DisconnectMI_Click);
             // 
@@ -139,13 +141,13 @@ namespace Quickstarts.ReferenceClient
             this.HelpMI.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.Help_ContentsMI});
             this.HelpMI.Name = "HelpMI";
-            this.HelpMI.Size = new System.Drawing.Size(40, 20);
+            this.HelpMI.Size = new System.Drawing.Size(44, 20);
             this.HelpMI.Text = "Help";
             // 
             // Help_ContentsMI
             // 
             this.Help_ContentsMI.Name = "Help_ContentsMI";
-            this.Help_ContentsMI.Size = new System.Drawing.Size(152, 22);
+            this.Help_ContentsMI.Size = new System.Drawing.Size(122, 22);
             this.Help_ContentsMI.Text = "Contents";
             this.Help_ContentsMI.Click += new System.EventHandler(this.Help_ContentsMI_Click);
             // 
@@ -173,9 +175,9 @@ namespace Quickstarts.ReferenceClient
             this.ConnectServerCTRL.TabIndex = 6;
             this.ConnectServerCTRL.UserIdentity = null;
             this.ConnectServerCTRL.UseSecurity = true;
-            this.ConnectServerCTRL.ConnectComplete += new System.EventHandler(this.Server_ConnectComplete);
             this.ConnectServerCTRL.ReconnectStarting += new System.EventHandler(this.Server_ReconnectStarting);
             this.ConnectServerCTRL.ReconnectComplete += new System.EventHandler(this.Server_ReconnectComplete);
+            this.ConnectServerCTRL.ConnectComplete += new System.EventHandler(this.Server_ConnectComplete);
             // 
             // BrowseCTRL
             // 
@@ -190,6 +192,7 @@ namespace Quickstarts.ReferenceClient
             // 
             // clientHeaderBranding1
             // 
+            this.clientHeaderBranding1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.clientHeaderBranding1.BackColor = System.Drawing.Color.White;
             this.clientHeaderBranding1.Dock = System.Windows.Forms.DockStyle.Top;
             this.clientHeaderBranding1.Location = new System.Drawing.Point(0, 24);
@@ -199,6 +202,13 @@ namespace Quickstarts.ReferenceClient
             this.clientHeaderBranding1.Padding = new System.Windows.Forms.Padding(3);
             this.clientHeaderBranding1.Size = new System.Drawing.Size(884, 75);
             this.clientHeaderBranding1.TabIndex = 7;
+            // 
+            // subscribeToolStripMenuItem
+            // 
+            this.subscribeToolStripMenuItem.Name = "subscribeToolStripMenuItem";
+            this.subscribeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.subscribeToolStripMenuItem.Text = "Subscribe";
+            this.subscribeToolStripMenuItem.Click += new System.EventHandler(this.subscribeToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -236,5 +246,6 @@ namespace Quickstarts.ReferenceClient
         private HeaderBranding clientHeaderBranding1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem subscribeToolStripMenuItem;
     }
 }

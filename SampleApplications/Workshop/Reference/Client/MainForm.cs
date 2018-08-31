@@ -197,12 +197,68 @@ namespace Quickstarts.ReferenceClient
         {
             try
             {
-                System.Diagnostics.Process.Start( Path.GetDirectoryName(Application.ExecutablePath) + "\\WebHelp\\overview_-_reference_client.htm");
+                System.Diagnostics.Process.Start(Path.GetDirectoryName(Application.ExecutablePath) + "\\WebHelp\\overview_-_reference_client.htm");
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Unable to launch help documentation. Error: " + ex.Message);
             }
+        }
+
+        private Subscription m_subscription;
+        private MonitoredItem monitoredItem;
+        private SubscriptionOutput outputWindow;
+
+        private void subscribeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            if (m_subscription == null)
+            {
+                m_subscription = new Subscription(m_session.DefaultSubscription);
+                m_subscription.PublishingEnabled = true;
+                m_subscription.PublishingInterval = 1000;
+                m_session.AddSubscription(m_subscription);
+                m_subscription.Create();
+            }
+
+            if (monitoredItem == null)
+            {
+                monitoredItem = new MonitoredItem(m_subscription.DefaultItem);
+                monitoredItem.StartNodeId = monitoredItem.AttributeId = Attributes.Value;
+                monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                monitoredItem.SamplingInterval = 1000;
+                monitoredItem.QueueSize = 0;
+                monitoredItem.DiscardOldest = true;
+                // define event handler for this item, and then add to subscription
+                monitoredItem.Notification += new MonitoredItemNotificationEventHandler(monitoredItem_Notification);
+                m_subscription.AddItem(monitoredItem);
+            }
+
+
+
+            if (outputWindow == null)
+            {
+                outputWindow = new SubscriptionOutput();
+
+            }
+        }
+
+        void monitoredItem_Notification(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs e)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new MonitoredItemNotificationEventHandler(monitoredItem_Notification), monitoredItem, e);
+                return;
+            }
+            MonitoredItemNotification notification = e.NotificationValue as MonitoredItemNotification;
+            if (notification == null)
+            {
+                return;
+            }
+            outputWindow.label1.Text = "value: " + Utils.Format("{0}", notification.Value.WrappedValue.ToString()) +
+              ";\nStatusCode: " + Utils.Format("{0}", notification.Value.StatusCode.ToString()) +
+              ";\nSource timestamp: " + notification.Value.SourceTimestamp.ToString() +
+              ";\nServer timestamp: " + notification.Value.ServerTimestamp.ToString();
         }
     }
 }
