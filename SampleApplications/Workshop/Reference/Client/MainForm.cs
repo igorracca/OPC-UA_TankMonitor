@@ -205,42 +205,111 @@ namespace Quickstarts.ReferenceClient
             }
         }
 
+        ReferenceDescriptionCollection tanks;
+
+        private void GetTanks()
+        {
+            BrowseDescription nodeToBrowse = new BrowseDescription();
+
+            nodeToBrowse.NodeId = Opc.Ua.ObjectIds.ObjectsFolder;
+            nodeToBrowse.BrowseDirection = BrowseDirection.Forward;
+            nodeToBrowse.ReferenceTypeId = Opc.Ua.ReferenceTypeIds.HierarchicalReferences;
+            nodeToBrowse.IncludeSubtypes = true;
+            nodeToBrowse.NodeClassMask = (uint)(NodeClass.Object);
+            nodeToBrowse.ResultMask = (uint)(BrowseResultMask.All);
+
+            ReferenceDescriptionCollection references = ClientUtils.Browse(
+                m_session,
+                nodeToBrowse,
+                false);
+
+            ReferenceDescription tank = null;
+
+            if (references != null)
+            {
+                for (int ii = 1; ii < references.Count; ii++)
+                {
+                    //tanks.Add(references[ii]);
+                    tank = references[ii];
+                }
+            }
+
+            NamespaceTable wellKnownNamespaceUris = new NamespaceTable();
+
+            string[] browsePaths = new string[]
+                {
+                    "1:Level",
+                    "2:Temperature"
+                };
+
+            List<NodeId> nodes = ClientUtils.TranslateBrowsePaths(
+                m_session,
+                (NodeId)tank.NodeId,
+                wellKnownNamespaceUris,
+                browsePaths);
+        }
+   
+
         private Subscription m_subscription;
         private MonitoredItem monitoredItem;
         private SubscriptionOutput outputWindow;
 
         private void subscribeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
-            if (m_subscription == null)
+            try
             {
-                m_subscription = new Subscription(m_session.DefaultSubscription);
-                m_subscription.PublishingEnabled = true;
-                m_subscription.PublishingInterval = 1000;
-                m_session.AddSubscription(m_subscription);
-                m_subscription.Create();
-            }
+                GetTanks();
 
-            if (monitoredItem == null)
+                if (m_session == null)
+                {
+                    return;
+                }
+                
+                if (m_subscription != null)
+                {
+                    m_session.RemoveSubscription(m_subscription);
+                    m_subscription = null;
+                }
+
+                if (m_subscription == null)
+                {
+                    m_subscription = new Subscription();
+
+                    m_subscription.PublishingEnabled = true;
+                    m_subscription.PublishingInterval = 1000;
+                    m_subscription.Priority = 1;
+                    m_subscription.KeepAliveCount = 10;
+                    m_subscription.LifetimeCount = 20;
+                    m_subscription.MaxNotificationsPerPublish = 1000;
+
+                    m_session.AddSubscription(m_subscription);
+                    m_subscription.Create();
+                }
+
+                if (monitoredItem == null)
+                {
+                    monitoredItem = new MonitoredItem(m_subscription.DefaultItem);
+                    monitoredItem.StartNodeId = monitoredItem.AttributeId = Attributes.Value;
+                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
+                    monitoredItem.SamplingInterval = 1000;
+                    monitoredItem.QueueSize = 0;
+                    monitoredItem.DiscardOldest = true;
+                    // define event handler for this item, and then add to subscription
+                    monitoredItem.Notification += new MonitoredItemNotificationEventHandler(monitoredItem_Notification);
+                    m_subscription.AddItem(monitoredItem);
+                }
+
+                m_subscription.ApplyChanges();
+
+                if (outputWindow == null)
+                {
+                    outputWindow = new SubscriptionOutput();
+                }
+            }
+            catch (Exception exception)
             {
-                monitoredItem = new MonitoredItem(m_subscription.DefaultItem);
-                monitoredItem.StartNodeId = monitoredItem.AttributeId = Attributes.Value;
-                monitoredItem.MonitoringMode = MonitoringMode.Reporting;
-                monitoredItem.SamplingInterval = 1000;
-                monitoredItem.QueueSize = 0;
-                monitoredItem.DiscardOldest = true;
-                // define event handler for this item, and then add to subscription
-                monitoredItem.Notification += new MonitoredItemNotificationEventHandler(monitoredItem_Notification);
-                m_subscription.AddItem(monitoredItem);
-            }
-
-
-
-            if (outputWindow == null)
-            {
-                outputWindow = new SubscriptionOutput();
-
-            }
+                ClientUtils.HandleException(this.Text, exception);
+            }       
         }
 
         void monitoredItem_Notification(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs e)

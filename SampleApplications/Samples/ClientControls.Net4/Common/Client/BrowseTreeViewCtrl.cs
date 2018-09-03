@@ -274,6 +274,7 @@ namespace Opc.Ua.Client.Controls
 
             BrowseTV.Nodes.Clear();
 
+
             if (m_session != null)
             {
                 INode node = m_session.NodeCache.Find(m_rootId);
