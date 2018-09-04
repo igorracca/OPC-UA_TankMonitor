@@ -81,6 +81,7 @@
     <Compile Include="SubscriptionOutput.Designer.cs">
       <DependentUpon>SubscriptionOutput.cs</DependentUpon>
     </Compile>
+    <Compile Include="Tank.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>

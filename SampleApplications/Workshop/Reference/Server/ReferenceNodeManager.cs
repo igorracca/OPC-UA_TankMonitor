@@ -192,11 +192,10 @@ namespace Quickstarts.ReferenceServer
                 root.EventNotifier = EventNotifiers.SubscribeToEvents;
                 AddRootNotifier(root);
 
-                
-                variables.Add(CreateVariable(root, "/Tanks/Temperature", "Temperature", BuiltInType.Int32, ValueRanks.Scalar));
-                variables[0].Value = (Int32)40;
                 variables.Add(CreateVariable(root, "/Tanks/Level", "Level", BuiltInType.Int32, ValueRanks.Scalar));
-                variables[1].Value = (Int32)99;
+                variables[0].Value = (Int32)99;
+                variables.Add(CreateVariable(root, "/Tanks/Temperature", "Temperature", BuiltInType.Int32, ValueRanks.Scalar));
+                variables[1].Value = (Int32)40;             
                 
                 AddPredefinedNode(SystemContext, root);
                 m_simulationTimer = new Timer(DoSimulation, null, 1000, 1000);
@@ -1420,8 +1419,8 @@ namespace Quickstarts.ReferenceServer
 
                     int value2 = (Int32)variables[TEMPERATURE].Value;
                     value2 = ((int)(++value2)) % 40;
-                    variables[LEVEL].Value = value2;
-                    variables[LEVEL].ClearChangeMasks(SystemContext, true);
+                    variables[TEMPERATURE].Value = value2;
+                    variables[TEMPERATURE].ClearChangeMasks(SystemContext, true);
                 }
                 //lock (Lock)
                 //{

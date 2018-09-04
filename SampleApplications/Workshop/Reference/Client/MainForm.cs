@@ -207,7 +207,7 @@ namespace Quickstarts.ReferenceClient
             }
         }
 
-        ReferenceDescriptionCollection tanks;
+        ReferenceDescriptionCollection tanksRef = new ReferenceDescriptionCollection();
 
         private void GetTanks()
         {
@@ -225,32 +225,19 @@ namespace Quickstarts.ReferenceClient
                 nodeToBrowse,
                 false);
 
-            ReferenceDescription tank = null;
-
             if (references != null)
             {
-                for (int ii = 1; ii < references.Count; ii++)
+                for (int ii = 0; ii < references.Count; ii++)
                 {
-                    tanks.Add(references[ii]);
+                    // do not add Server node
+                    if (!references[ii].BrowseName.Name.Equals("Server"))
+                        tanksRef.Add(references[ii]);
                 }
             }
-
-            //BrowseDescription n = new BrowseDescription();
-            //n.NodeId = (NodeId)tank.NodeId;
-            //n.BrowseDirection = BrowseDirection.Forward;
-            //n.IncludeSubtypes = true;
-            //n.NodeClassMask = (uint)(NodeClass.Variable);
-            //n.ResultMask = (uint)(BrowseResultMask.All);
-
-            //ReferenceDescriptionCollection r = ClientUtils.Browse(
-            //    m_session,
-            //    n,
-            //    false);
         }
    
-
+       
         private Subscription m_subscription;
-        private MonitoredItem monitoredItem;
         private SubscriptionOutput outputWindow;
 
         private void subscribeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -268,32 +255,41 @@ namespace Quickstarts.ReferenceClient
                     m_subscription = null;
                 }
 
-                if (m_subscription == null)
+                m_subscription = new Subscription();
+
+                m_subscription.PublishingEnabled = true;
+                m_subscription.PublishingInterval = 1000;
+                m_subscription.Priority = 1;
+                m_subscription.KeepAliveCount = 10;
+                m_subscription.LifetimeCount = 20;
+                m_subscription.MaxNotificationsPerPublish = 1000;
+
+                m_session.AddSubscription(m_subscription);
+                m_subscription.Create();
+                
+                for(int i=0; i<tanksRef.Count; i++)
                 {
-                    m_subscription = new Subscription();
+                    BrowseDescription n = new BrowseDescription();
+                    n.NodeId = (NodeId)tanksRef[i].NodeId;
+                    n.BrowseDirection = BrowseDirection.Forward;
+                    n.IncludeSubtypes = true;
+                    n.NodeClassMask = (uint)(NodeClass.Variable);
+                    n.ResultMask = (uint)(BrowseResultMask.All);
 
-                    m_subscription.PublishingEnabled = true;
-                    m_subscription.PublishingInterval = 1000;
-                    m_subscription.Priority = 1;
-                    m_subscription.KeepAliveCount = 10;
-                    m_subscription.LifetimeCount = 20;
-                    m_subscription.MaxNotificationsPerPublish = 1000;
+                    ReferenceDescriptionCollection props = ClientUtils.Browse(
+                        m_session,
+                        n,
+                        false);
 
-                    m_session.AddSubscription(m_subscription);
-                    m_subscription.Create();
-                }
-
-                if (monitoredItem == null)
-                {
-                    monitoredItem = new MonitoredItem(m_subscription.DefaultItem);
-                    monitoredItem.StartNodeId = monitoredItem.AttributeId = Attributes.Value;
-                    monitoredItem.MonitoringMode = MonitoringMode.Reporting;
-                    monitoredItem.SamplingInterval = 1000;
-                    monitoredItem.QueueSize = 0;
-                    monitoredItem.DiscardOldest = true;
-                    // define event handler for this item, and then add to subscription
-                    monitoredItem.Notification += new MonitoredItemNotificationEventHandler(monitoredItem_Notification);
-                    m_subscription.AddItem(monitoredItem);
+                    for(int j=0; j<2; j++)
+                    {
+                        MonitoredItem monitoredItem = new MonitoredItem();
+                        monitoredItem.StartNodeId = (NodeId)props[j].NodeId;
+                        monitoredItem.DisplayName = "Property #" + j;
+                        monitoredItem.AttributeId = Attributes.Value;
+                        monitoredItem.Notification += new MonitoredItemNotificationEventHandler(monitoredItem_Notification);
+                        m_subscription.AddItem(monitoredItem);
+                    }
                 }
 
                 m_subscription.ApplyChanges();
@@ -316,15 +312,32 @@ namespace Quickstarts.ReferenceClient
                 this.BeginInvoke(new MonitoredItemNotificationEventHandler(monitoredItem_Notification), monitoredItem, e);
                 return;
             }
-            MonitoredItemNotification notification = e.NotificationValue as MonitoredItemNotification;
-            if (notification == null)
-            {
-                return;
+
+            try {
+                MonitoredItemNotification notification = e.NotificationValue as MonitoredItemNotification;
+
+                if (notification == null)
+                {
+                    return;
+                }
+
+                Console.WriteLine(monitoredItem.DisplayName + ": " + notification.Value.WrappedValue.ToString());
+
+                outputWindow.label1.Text = monitoredItem.DisplayName + " value: " + Utils.Format("{0}", notification.Value.WrappedValue.ToString()) +
+                  ";\nStatusCode: " + Utils.Format("{0}", notification.Value.StatusCode.ToString()) +
+                  ";\nSource timestamp: " + notification.Value.SourceTimestamp.ToString() +
+                  ";\nServer timestamp: " + notification.Value.ServerTimestamp.ToString();
+
             }
-            outputWindow.label1.Text = "value: " + Utils.Format("{0}", notification.Value.WrappedValue.ToString()) +
-              ";\nStatusCode: " + Utils.Format("{0}", notification.Value.StatusCode.ToString()) +
-              ";\nSource timestamp: " + notification.Value.SourceTimestamp.ToString() +
-              ";\nServer timestamp: " + notification.Value.ServerTimestamp.ToString();
+            catch (Exception exception)
+            {
+                ClientUtils.HandleException(this.Text, exception);
+            }
+
+
+
+
+
         }
     }
 }
