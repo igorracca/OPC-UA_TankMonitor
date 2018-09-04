@@ -170,6 +170,9 @@ namespace Quickstarts.ReferenceServer
         /// in other node managers. For example, the 'Objects' node is managed by the CoreNodeManager and
         /// should have a reference to the root folder node(s) exposed by this node manager.  
         /// </remarks>
+        /// 
+        List<BaseDataVariableState> variables = new List<BaseDataVariableState>();
+
         public override void CreateAddressSpace(IDictionary<NodeId, IList<IReference>> externalReferences)
         {
             lock (Lock)
@@ -182,17 +185,17 @@ namespace Quickstarts.ReferenceServer
                 }
 
                 //FolderState root = CreateFolder(null, "CTT", "CTT");
-                FolderState root = CreateFolder(null, "/HylaTest", "HylaTest");
+                FolderState root = CreateFolder(null, "/Tanks", "Tanks");
 
                 root.AddReference(ReferenceTypes.Organizes, true, ObjectIds.ObjectsFolder);
                 references.Add(new NodeStateReference(ReferenceTypes.Organizes, false, root.NodeId));
                 root.EventNotifier = EventNotifiers.SubscribeToEvents;
                 AddRootNotifier(root);
 
-                List<BaseDataVariableState> variables = new List<BaseDataVariableState>();
-                variables.Add(CreateVariable(root, "/HylaTest/Temperature", "Temperature", BuiltInType.Int32, ValueRanks.Scalar));
+                
+                variables.Add(CreateVariable(root, "/Tanks/Temperature", "Temperature", BuiltInType.Int32, ValueRanks.Scalar));
                 variables[0].Value = (Int32)40;
-                variables.Add(CreateVariable(root, "/HylaTest/Level", "Level", BuiltInType.Int32, ValueRanks.Scalar));
+                variables.Add(CreateVariable(root, "/Tanks/Level", "Level", BuiltInType.Int32, ValueRanks.Scalar));
                 variables[1].Value = (Int32)99;
                 
                 AddPredefinedNode(SystemContext, root);
@@ -1400,20 +1403,35 @@ namespace Quickstarts.ReferenceServer
 
             return value;
         }
-
+        
         private void DoSimulation(object state)
         {
             try
             {
-                lock (Lock)
+                const int LEVEL = 0;
+                const int TEMPERATURE = 1;
+
+                for (int i = 0; i < variables.Count; i++)
                 {
-                    foreach (BaseDataVariableState variable in m_dynamicNodes)
-                    {
-                        variable.Value = GetNewValue(variable);
-                        variable.Timestamp = DateTime.UtcNow;
-                        variable.ClearChangeMasks(SystemContext, false);
-                    }
+                    int value1 = (Int32)variables[LEVEL].Value;
+                    value1 = ((int)(++value1)) % 100;
+                    variables[LEVEL].Value = value1;
+                    variables[LEVEL].ClearChangeMasks(SystemContext, true);
+
+                    int value2 = (Int32)variables[TEMPERATURE].Value;
+                    value2 = ((int)(++value2)) % 40;
+                    variables[LEVEL].Value = value2;
+                    variables[LEVEL].ClearChangeMasks(SystemContext, true);
                 }
+                //lock (Lock)
+                //{
+                //    foreach (BaseDataVariableState variable in m_dynamicNodes)
+                //    {
+                //        variable.Value = GetNewValue(variable);
+                //        variable.Timestamp = DateTime.UtcNow;
+                //        variable.ClearChangeMasks(SystemContext, false);
+                //    }
+                //}
             }
             catch (Exception e)
             {

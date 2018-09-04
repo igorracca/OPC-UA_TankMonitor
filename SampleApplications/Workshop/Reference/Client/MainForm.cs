@@ -138,6 +138,8 @@ namespace Quickstarts.ReferenceClient
 
                 // browse the instances in the server.
                 BrowseCTRL.Initialize(m_session, ObjectIds.ObjectsFolder, ReferenceTypeIds.Organizes, ReferenceTypeIds.Aggregates);
+
+                GetTanks();
             }
             catch (Exception exception)
             {
@@ -229,24 +231,21 @@ namespace Quickstarts.ReferenceClient
             {
                 for (int ii = 1; ii < references.Count; ii++)
                 {
-                    //tanks.Add(references[ii]);
-                    tank = references[ii];
+                    tanks.Add(references[ii]);
                 }
             }
 
-            NamespaceTable wellKnownNamespaceUris = new NamespaceTable();
+            //BrowseDescription n = new BrowseDescription();
+            //n.NodeId = (NodeId)tank.NodeId;
+            //n.BrowseDirection = BrowseDirection.Forward;
+            //n.IncludeSubtypes = true;
+            //n.NodeClassMask = (uint)(NodeClass.Variable);
+            //n.ResultMask = (uint)(BrowseResultMask.All);
 
-            string[] browsePaths = new string[]
-                {
-                    "1:Level",
-                    "2:Temperature"
-                };
-
-            List<NodeId> nodes = ClientUtils.TranslateBrowsePaths(
-                m_session,
-                (NodeId)tank.NodeId,
-                wellKnownNamespaceUris,
-                browsePaths);
+            //ReferenceDescriptionCollection r = ClientUtils.Browse(
+            //    m_session,
+            //    n,
+            //    false);
         }
    
 
@@ -258,8 +257,6 @@ namespace Quickstarts.ReferenceClient
         {
             try
             {
-                GetTanks();
-
                 if (m_session == null)
                 {
                     return;
