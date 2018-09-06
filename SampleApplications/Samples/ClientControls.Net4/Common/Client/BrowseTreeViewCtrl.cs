@@ -450,7 +450,7 @@ namespace Opc.Ua.Client.Controls
 
                     int index = 0;
 
-                    if (!m_typeImageMapping.TryGetValue((NodeId)reference.TypeDefinition, out index))
+                    if (!m_typeImageMapping.TryGetValue((NodeId)ExpandedNodeId.ToNodeId(reference.TypeDefinition, null), out index))
                     {
                         child.ImageIndex = ClientUtils.GetImageIndex(m_session, reference.NodeClass, reference.TypeDefinition, false);
                         child.SelectedImageIndex = ClientUtils.GetImageIndex(m_session, reference.NodeClass, reference.TypeDefinition, true);

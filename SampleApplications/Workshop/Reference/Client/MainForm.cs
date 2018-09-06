@@ -137,7 +137,7 @@ namespace Quickstarts.ReferenceClient
                 }
 
                 // browse the instances in the server.
-                BrowseCTRL.Initialize(m_session, ObjectIds.ObjectsFolder, ReferenceTypeIds.Organizes, ReferenceTypeIds.Aggregates);
+                //BrowseCTRL.Initialize(m_session, ObjectIds.ObjectsFolder, ReferenceTypeIds.Organizes, ReferenceTypeIds.Aggregates);
 
                 GetTanks();
             }
@@ -258,7 +258,7 @@ namespace Quickstarts.ReferenceClient
                 m_subscription = new Subscription();
 
                 m_subscription.PublishingEnabled = true;
-                m_subscription.PublishingInterval = 1000;
+                m_subscription.PublishingInterval = 10000;
                 m_subscription.Priority = 1;
                 m_subscription.KeepAliveCount = 10;
                 m_subscription.LifetimeCount = 20;
@@ -266,30 +266,42 @@ namespace Quickstarts.ReferenceClient
 
                 m_session.AddSubscription(m_subscription);
                 m_subscription.Create();
-                
-                for(int i=0; i<tanksRef.Count; i++)
+
+                for (int ii = 0; ii < tanksRef.Count; ii++)
                 {
-                    BrowseDescription n = new BrowseDescription();
-                    n.NodeId = (NodeId)tanksRef[i].NodeId;
-                    n.BrowseDirection = BrowseDirection.Forward;
-                    n.IncludeSubtypes = true;
-                    n.NodeClassMask = (uint)(NodeClass.Variable);
-                    n.ResultMask = (uint)(BrowseResultMask.All);
+                    // filter the node (should be the tank)
+                    if(tanksRef[ii].BrowseName.Name.Contains(TankDataTypes.tanks))
+                    { 
+                        BrowseDescription n = new BrowseDescription();
+                        n.NodeId = (NodeId)tanksRef[ii].NodeId;
+                        n.BrowseDirection = BrowseDirection.Forward;
+                        n.IncludeSubtypes = true;
+                        n.NodeClassMask = (uint)(NodeClass.Variable);
+                        n.ResultMask = (uint)(BrowseResultMask.All);
 
-                    ReferenceDescriptionCollection props = ClientUtils.Browse(
-                        m_session,
-                        n,
-                        false);
+                        ReferenceDescriptionCollection props = ClientUtils.Browse(
+                            m_session,
+                            n,
+                            false);
 
-                    for(int j=0; j<2; j++)
-                    {
-                        MonitoredItem monitoredItem = new MonitoredItem();
-                        monitoredItem.StartNodeId = (NodeId)props[j].NodeId;
-                        monitoredItem.DisplayName = "Property #" + j;
-                        monitoredItem.AttributeId = Attributes.Value;
-                        monitoredItem.Notification += new MonitoredItemNotificationEventHandler(monitoredItem_Notification);
-                        m_subscription.AddItem(monitoredItem);
+                        if (props.Count > 0)
+                        {
+                            for (int jj = 0; jj < props.Count; jj++)
+                            {
+                                // filter the Properties of the tank
+                                if (TankDataTypes.containsProp(props[jj].BrowseName.Name))
+                                {
+                                    MonitoredItem monitoredItem = new MonitoredItem();
+                                    monitoredItem.StartNodeId = (NodeId)props[jj].NodeId;
+                                    monitoredItem.DisplayName = props[jj].BrowseName.Name;
+                                    monitoredItem.AttributeId = Attributes.Value;
+                                    monitoredItem.Notification += new MonitoredItemNotificationEventHandler(monitoredItem_Notification);
+                                    m_subscription.AddItem(monitoredItem);
+                                }
+                            }
+                        }
                     }
+                    
                 }
 
                 m_subscription.ApplyChanges();
