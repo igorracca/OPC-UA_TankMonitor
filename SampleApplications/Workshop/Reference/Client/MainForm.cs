@@ -289,7 +289,7 @@ namespace Quickstarts.ReferenceClient
                             for (int jj = 0; jj < props.Count; jj++)
                             {
                                 // filter the Properties of the tank
-                                if (TankDataTypes.containsProp(props[jj].BrowseName.Name))
+                                if (TankDataTypes.containsProp(props[jj].DisplayName.Text))
                                 {
                                     MonitoredItem monitoredItem = new MonitoredItem();
                                     monitoredItem.StartNodeId = (NodeId)props[jj].NodeId;

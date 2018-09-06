@@ -185,16 +185,16 @@ namespace Quickstarts.ReferenceServer
                 }
 
                 //FolderState root = CreateFolder(null, "CTT", "CTT");
-                FolderState root = CreateFolder(null, "/Tanks", "Tanks");
+                FolderState root = CreateFolder(null, "/Simulation", "Simulation");
 
                 root.AddReference(ReferenceTypes.Organizes, true, ObjectIds.ObjectsFolder);
                 references.Add(new NodeStateReference(ReferenceTypes.Organizes, false, root.NodeId));
                 root.EventNotifier = EventNotifiers.SubscribeToEvents;
                 AddRootNotifier(root);
 
-                variables.Add(CreateVariable(root, "/Tanks/Level", "Level", BuiltInType.Int32, ValueRanks.Scalar));
+                variables.Add(CreateVariable(root, "/Simulation/Nível", "Nível", BuiltInType.Int32, ValueRanks.Scalar));
                 variables[0].Value = (Int32)99;
-                variables.Add(CreateVariable(root, "/Tanks/Temperature", "Temperature", BuiltInType.Int32, ValueRanks.Scalar));
+                variables.Add(CreateVariable(root, "/Simulation/Temperatura", "Temperatura", BuiltInType.Int32, ValueRanks.Scalar));
                 variables[1].Value = (Int32)40;             
                 
                 AddPredefinedNode(SystemContext, root);
