@@ -137,7 +137,7 @@ namespace Quickstarts.ReferenceClient
                 }
 
                 // browse the instances in the server.
-                //BrowseCTRL.Initialize(m_session, ObjectIds.ObjectsFolder, ReferenceTypeIds.Organizes, ReferenceTypeIds.Aggregates);
+                BrowseCTRL.Initialize(m_session, ObjectIds.ObjectsFolder, ReferenceTypeIds.Organizes, ReferenceTypeIds.Aggregates);
 
                 GetTanks();
             }
@@ -258,11 +258,11 @@ namespace Quickstarts.ReferenceClient
                 m_subscription = new Subscription();
 
                 m_subscription.PublishingEnabled = true;
-                m_subscription.PublishingInterval = 10000;
+                m_subscription.PublishingInterval = 5000;
                 m_subscription.Priority = 1;
                 m_subscription.KeepAliveCount = 10;
                 m_subscription.LifetimeCount = 20;
-                m_subscription.MaxNotificationsPerPublish = 1000;
+                m_subscription.MaxNotificationsPerPublish = 5000;
 
                 m_session.AddSubscription(m_subscription);
                 m_subscription.Create();

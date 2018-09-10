@@ -173,6 +173,9 @@ namespace Quickstarts.ReferenceServer
         /// 
         List<BaseDataVariableState> variables = new List<BaseDataVariableState>();
 
+        const int LEVEL = 6;
+        const int TEMPERATURE = 8;
+
         public override void CreateAddressSpace(IDictionary<NodeId, IList<IReference>> externalReferences)
         {
             lock (Lock)
@@ -192,11 +195,28 @@ namespace Quickstarts.ReferenceServer
                 root.EventNotifier = EventNotifiers.SubscribeToEvents;
                 AddRootNotifier(root);
 
+                #region variables
+
+                variables.Add(CreateVariable(root, "/Simulation/Grupo", "Grupo", BuiltInType.Int32, ValueRanks.Scalar));
+                variables[0].Value = (Int32)2;
+                variables.Add(CreateVariable(root, "/Simulation/Nome", "Nome", BuiltInType.String, ValueRanks.Scalar));
+                variables[1].Value = "Tank1";
+                variables.Add(CreateVariable(root, "/Simulation/MatériaPrima", "MatériaPrima", BuiltInType.Int32, ValueRanks.Scalar));
+                variables[2].Value = (Int32)6;
+                variables.Add(CreateVariable(root, "/Simulation/Capacidade", "Capacidade", BuiltInType.Int32, ValueRanks.Scalar));
+                variables[3].Value = (Int32)100;
+                variables.Add(CreateVariable(root, "/Simulation/VolumeMorto", "VolumeMorto", BuiltInType.Int32, ValueRanks.Scalar));
+                variables[4].Value = (Int32)12;
+                variables.Add(CreateVariable(root, "/Simulation/Status", "Status", BuiltInType.String, ValueRanks.Scalar));
+                variables[5].Value = "Ready";
                 variables.Add(CreateVariable(root, "/Simulation/Nível", "Nível", BuiltInType.Int32, ValueRanks.Scalar));
-                variables[0].Value = (Int32)99;
+                variables[LEVEL].Value = (Int32)72;
+                variables.Add(CreateVariable(root, "/Simulation/Nível%", "Nível%", BuiltInType.Int32, ValueRanks.Scalar));
+                variables[7].Value = (Int32)72;
                 variables.Add(CreateVariable(root, "/Simulation/Temperatura", "Temperatura", BuiltInType.Int32, ValueRanks.Scalar));
-                variables[1].Value = (Int32)40;             
-                
+                variables[TEMPERATURE].Value = (Int32)40;
+                #endregion
+
                 AddPredefinedNode(SystemContext, root);
                 m_simulationTimer = new Timer(DoSimulation, null, 1000, 1000);
             }
@@ -1407,9 +1427,6 @@ namespace Quickstarts.ReferenceServer
         {
             try
             {
-                const int LEVEL = 0;
-                const int TEMPERATURE = 1;
-
                 for (int i = 0; i < variables.Count; i++)
                 {
                     int value1 = (Int32)variables[LEVEL].Value;
